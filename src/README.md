@@ -4,7 +4,7 @@ A full-featured traffic intelligence web application powered by Verizon's techno
 
 ## Features
 
-- **Real-Time Traffic Monitoring**: Live traffic maps with TomTom integration for NYC and Dallas
+- **Real-Time Traffic Monitoring**: Live traffic maps with animated vehicle flow
 - **AI-Powered Analysis**: Comprehensive traffic predictions and intervention recommendations
 - **Annual Data Reports**: Historical traffic trends with interactive visualizations
 - **Multi-City Support**: Switch between NYC, Dallas, Los Angeles, and Chicago
@@ -17,41 +17,27 @@ A full-featured traffic intelligence web application powered by Verizon's techno
 - **Tailwind CSS** for styling
 - **Recharts** for data visualization
 - **Motion/Framer Motion** for animations
-- **TomTom Traffic API** for real-time traffic data
 - **Verizon Design System** (Red #EE0000 and Black color palette)
 
 ## Local Development
 
 1. Clone the repository:
-   \`\`\`bash
+   ```bash
    git clone https://github.com/yourusername/Vetrai.git
    cd Vetrai
-   \`\`\`
+   ```
 
 2. Install dependencies:
-   \`\`\`bash
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. Start the development server:
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
 4. Open your browser and navigate to `http://localhost:5173`
-
-## Configuration
-
-### TomTom API Key
-
-To enable real-time traffic maps:
-
-1. Get a free API key from [TomTom Developer Portal](https://developer.tomtom.com/user/register)
-2. Click the Settings icon in the top right corner of the application
-3. Enter your API key in the "TomTom Maps API Key" field
-4. Click "Save Settings"
-
-The API key is stored locally in your browser and never sent to any server.
 
 ## Deployment to GitHub Pages
 
@@ -65,11 +51,11 @@ This project is configured for automatic deployment to GitHub Pages.
    - Under "Build and deployment", select "GitHub Actions" as the source
 
 2. **Push to Main Branch**:
-   \`\`\`bash
+   ```bash
    git add .
    git commit -m "Deploy to GitHub Pages"
    git push origin main
-   \`\`\`
+   ```
 
 3. **Automatic Deployment**:
    - The GitHub Actions workflow will automatically build and deploy your site
@@ -79,18 +65,18 @@ This project is configured for automatic deployment to GitHub Pages.
 
 If you prefer manual deployment:
 
-\`\`\`bash
+```bash
 # Build the project
 npm run build
 
 # Deploy to GitHub Pages using gh-pages (install if needed)
 npm install -g gh-pages
 gh-pages -d dist
-\`\`\`
+```
 
 ## Project Structure
 
-\`\`\`
+```xml
 Vetrai/
 ├── components/           # React components
 │   ├── ui/              # Shadcn UI components
@@ -104,7 +90,7 @@ Vetrai/
 │   └── roadData.ts      # Road network data
 ├── styles/              # Global styles
 └── App.tsx              # Main application component
-\`\`\`
+```
 
 ## Features Overview
 
@@ -118,7 +104,7 @@ Vetrai/
 - Real-time traffic map with vehicle animations
 - Live statistics (speed, incidents, congestion)
 - 72-hour traffic projections
-- TomTom or fallback map integration
+- Interactive city maps with extensive road networks
 
 ### Annual Data Report Tab
 - Interactive traffic heatmaps
@@ -153,7 +139,6 @@ This project is licensed under the MIT License.
 
 - Verizon 5G Network
 - Verizon Mobile Edge Computing
-- TomTom Traffic API
 
 ---
 

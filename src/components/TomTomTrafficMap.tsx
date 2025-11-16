@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { useCity, cityToMapName } from '../lib/cityContext';
-import { motion } from 'motion/react';
-import { AlertCircle } from 'lucide-react';
+import { useEffect, useRef, useState } from "react";
+import { useCity, cityToMapName } from "../lib/cityContext";
+import { motion } from "motion/react";
+import { AlertCircle } from "lucide-react";
 
 declare global {
   interface Window {
@@ -22,11 +22,14 @@ interface Vehicle {
   angle: number;
   route: [number, number][];
   routeIndex: number;
-  type: 'car' | 'truck' | 'bus';
+  type: "car" | "truck" | "bus";
   color: string;
 }
 
-export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTrafficMapProps) {
+export function TomTomTrafficMap({
+  isLive = false,
+  onApiStatusChange,
+}: TomTomTrafficMapProps) {
   const { selectedCity } = useCity();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -38,37 +41,79 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
   const markersRef = useRef<any[]>([]);
 
   // City coordinates for NYC and Dallas
-  const cityCoords: Record<string, { lat: number; lng: number; zoom: number }> = {
-    'New York': { lat: 40.7580, lng: -73.9855, zoom: 13 },
-    'Dallas': { lat: 32.7767, lng: -96.7970, zoom: 13 }
+  const cityCoords: Record<
+    string,
+    { lat: number; lng: number; zoom: number }
+  > = {
+    "New York": { lat: 40.758, lng: -73.9855, zoom: 13 },
+    Dallas: { lat: 32.7767, lng: -96.797, zoom: 13 },
   };
 
   // Main traffic routes for simulation
   const trafficRoutes: Record<string, [number, number][][]> = {
-    'New York': [
-      // Times Square to Central Park
-      [[40.7580, -73.9855], [40.7614, -73.9776], [40.7678, -73.9812], [40.7829, -73.9654]],
-      // Broadway route
-      [[40.7484, -73.9857], [40.7589, -73.9851], [40.7676, -73.9822]],
-      // FDR Drive
-      [[40.7128, -73.9776], [40.7359, -73.9755], [40.7489, -73.9680], [40.7689, -73.9545]],
-      // West Side Highway
-      [[40.7489, -74.0060], [40.7589, -74.0070], [40.7789, -74.0080]],
+    "New York": [
+      [
+        [40.7586, -73.9862],
+        [40.7645, -73.9825],
+        [40.7675, -73.9757],
+        [40.7712, -73.9741],
+      ],
+
+      // Broadway route (Midtown segment)
+      [
+        [40.7441, -73.988],
+        [40.7554, -73.9865],
+        [40.7619, -73.9839],
+      ],
+
+      // FDR Drive (A segment of the highway near the East River)
+      [
+        [40.718, -73.9763],
+        [40.738, -73.9715],
+        [40.7505, -73.965],
+        [40.7645, -73.956],
+      ],
+
+      // West Side Highway (NY-9A) (Segment from Chelsea to Upper West Side)
+      [
+        [40.747, -74.008],
+        [40.76, -74.002],
+        [40.775, -73.996],
+      ],
     ],
-    'Dallas': [
-      // Central Expressway
-      [[32.7767, -96.7970], [32.7867, -96.7900], [32.7967, -96.7850]],
-      // LBJ Freeway
-      [[32.9267, -96.8270], [32.9267, -96.7970], [32.9267, -96.7670]],
-      // Downtown routes
-      [[32.7767, -96.8070], [32.7767, -96.7970], [32.7767, -96.7870]],
-      // North Central
-      [[32.8067, -96.7970], [32.7867, -96.7970], [32.7667, -96.7970]],
-    ]
+    Dallas: [
+      // Central Expressway (US 75) (Segment near Downtown/Uptown)
+      [
+        [32.785, -96.7981],
+        [32.81, -96.7865],
+        [32.84, -96.777],
+      ],
+
+      // LBJ Freeway (I-635) (Segment running East-West)
+      [
+        [32.9348, -96.864],
+        [32.932, -96.812],
+        [32.93, -96.774],
+      ],
+
+      // Downtown routes (Elm Street segment)
+      [
+        [32.7781, -96.8065],
+        [32.7797, -96.798],
+        [32.7798, -96.7885],
+      ],
+
+      // North Central (Preston Road segment)
+      [
+        [32.775, -96.8082],
+        [32.805, -96.803],
+        [32.835, -96.7985],
+      ],
+    ],
   };
 
   useEffect(() => {
-    const apiKey = localStorage.getItem('tomtom_api_key');
+    const apiKey = localStorage.getItem("tomtom_api_key");
     setHasApiKey(!!apiKey);
 
     if (!apiKey) {
@@ -80,26 +125,31 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       try {
         if (!window.tt) {
           // Add CSS
-          const link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css';
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href =
+            "https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css";
           document.head.appendChild(link);
 
           // Add JS
-          const script = document.createElement('script');
-          script.src = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js';
+          const script = document.createElement("script");
+          script.src =
+            "https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js";
           script.async = true;
           await new Promise((resolve, reject) => {
             script.onload = resolve;
-            script.onerror = () => reject(new Error('Failed to load TomTom SDK'));
+            script.onerror = () =>
+              reject(new Error("Failed to load TomTom SDK"));
             document.body.appendChild(script);
           });
         }
         setIsLoaded(true);
         onApiStatusChange?.(true);
       } catch (error) {
-        console.error('TomTom SDK loading error:', error);
-        setApiError('Failed to load TomTom SDK. Please check your internet connection.');
+        console.error("TomTom SDK loading error:", error);
+        setApiError(
+          "Failed to load TomTom SDK. Please check your internet connection.",
+        );
         onApiStatusChange?.(false);
       }
     };
@@ -109,17 +159,37 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
 
   // Initialize vehicles for traffic simulation
   const initializeVehicles = (city: string) => {
-    const routes = trafficRoutes[city] || trafficRoutes['New York'];
+    const routes =
+      trafficRoutes[city] || trafficRoutes["New York"];
     const vehicles: Vehicle[] = [];
-    const vehicleTypes: ('car' | 'truck' | 'bus')[] = ['car', 'car', 'car', 'car', 'truck', 'bus'];
-    const colors = ['#EE0000', '#f97316', '#eab308', '#3b82f6', '#8b5cf6'];
+    const vehicleTypes: ("car" | "truck" | "bus")[] = [
+      "car",
+      "car",
+      "car",
+      "car",
+      "truck",
+      "bus",
+    ];
+    const colors = [
+      "#EE0000",
+      "#f97316",
+      "#eab308",
+      "#3b82f6",
+      "#8b5cf6",
+    ];
 
     routes.forEach((route, routeIdx) => {
       // Create multiple vehicles per route
-      const vehiclesPerRoute = Math.floor(Math.random() * 5) + 3;
+      const vehiclesPerRoute =
+        Math.floor(Math.random() * 5) + 3;
       for (let i = 0; i < vehiclesPerRoute; i++) {
-        const startIndex = Math.floor(Math.random() * route.length);
-        const type = vehicleTypes[Math.floor(Math.random() * vehicleTypes.length)];
+        const startIndex = Math.floor(
+          Math.random() * route.length,
+        );
+        const type =
+          vehicleTypes[
+            Math.floor(Math.random() * vehicleTypes.length)
+          ];
         vehicles.push({
           id: routeIdx * 10 + i,
           lat: route[startIndex][0],
@@ -129,7 +199,8 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
           route: route,
           routeIndex: startIndex,
           type: type,
-          color: colors[Math.floor(Math.random() * colors.length)]
+          color:
+            colors[Math.floor(Math.random() * colors.length)],
         });
       }
     });
@@ -138,14 +209,21 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
   };
 
   useEffect(() => {
-    if (!isLoaded || !mapRef.current || !window.tt || !hasApiKey) return;
+    if (
+      !isLoaded ||
+      !mapRef.current ||
+      !window.tt ||
+      !hasApiKey
+    )
+      return;
 
-    const apiKey = localStorage.getItem('tomtom_api_key');
+    const apiKey = localStorage.getItem("tomtom_api_key");
     if (!apiKey) return;
 
     // Convert city ID to map name (e.g., 'nyc' -> 'New York')
-    const mapName = cityToMapName[selectedCity] || 'New York';
-    const coords = cityCoords[mapName] || cityCoords['New York'];
+    const mapName = cityToMapName[selectedCity] || "New York";
+    const coords =
+      cityCoords[mapName] || cityCoords["New York"];
 
     const initializeMap = () => {
       try {
@@ -156,59 +234,70 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
             container: mapRef.current,
             center: [coords.lng, coords.lat],
             zoom: coords.zoom,
-            style: 'tomtom://vector/1/basic-night',
+            style: "tomtom://vector/1/basic-night",
           });
 
           // Handle map errors
-          map.on('error', (e: any) => {
-            console.error('TomTom map error:', e);
-            setApiError('TomTom API error. Please check your API key and try again.');
+          map.on("error", (e: any) => {
+            console.error("TomTom map error:", e);
+            setApiError(
+              "TomTom API error. Please check your API key and try again.",
+            );
             onApiStatusChange?.(false);
           });
 
           // Add traffic flow layer
-          map.on('load', () => {
+          map.on("load", () => {
             try {
               map.addLayer({
-                'id': 'traffic-flow',
-                'type': 'line',
-                'source': {
-                  'type': 'vector',
-                  'tiles': [`https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.pbf?key=${apiKey}`]
-                },
-                'source-layer': 'Traffic flow',
-                'paint': {
-                  'line-color': [
-                    'case',
-                    ['<', ['get', 'speed'], 25], '#EE0000',
-                    ['<', ['get', 'speed'], 50], '#f97316',
-                    ['<', ['get', 'speed'], 75], '#eab308',
-                    '#22c55e'
+                id: "traffic-flow",
+                type: "line",
+                source: {
+                  type: "vector",
+                  tiles: [
+                    `https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.pbf?key=${apiKey}`,
                   ],
-                  'line-width': 3,
-                  'line-opacity': 0.8
-                }
+                },
+                "source-layer": "Traffic flow",
+                paint: {
+                  "line-color": [
+                    "case",
+                    ["<", ["get", "speed"], 25],
+                    "#EE0000",
+                    ["<", ["get", "speed"], 50],
+                    "#f97316",
+                    ["<", ["get", "speed"], 75],
+                    "#eab308",
+                    "#22c55e",
+                  ],
+                  "line-width": 3,
+                  "line-opacity": 0.8,
+                },
               });
 
               // Add traffic incidents layer
               map.addLayer({
-                'id': 'traffic-incidents',
-                'type': 'circle',
-                'source': {
-                  'type': 'vector',
-                  'tiles': [`https://api.tomtom.com/traffic/map/4/tile/incidents/{z}/{x}/{y}.pbf?key=${apiKey}`]
+                id: "traffic-incidents",
+                type: "circle",
+                source: {
+                  type: "vector",
+                  tiles: [
+                    `https://api.tomtom.com/traffic/map/4/tile/incidents/{z}/{x}/{y}.pbf?key=${apiKey}`,
+                  ],
                 },
-                'source-layer': 'Traffic incidents',
-                'paint': {
-                  'circle-radius': 8,
-                  'circle-color': '#EE0000',
-                  'circle-stroke-width': 2,
-                  'circle-stroke-color': '#fff'
-                }
+                "source-layer": "Traffic incidents",
+                paint: {
+                  "circle-radius": 8,
+                  "circle-color": "#EE0000",
+                  "circle-stroke-width": 2,
+                  "circle-stroke-color": "#fff",
+                },
               });
             } catch (error) {
-              console.error('Error adding map layers:', error);
-              setApiError('Failed to add traffic layers. Please check your API key.');
+              console.error("Error adding map layers:", error);
+              setApiError(
+                "Failed to add traffic layers. Please check your API key.",
+              );
               onApiStatusChange?.(false);
             }
           });
@@ -220,7 +309,7 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
             center: [coords.lng, coords.lat],
             zoom: coords.zoom,
             essential: true,
-            duration: 1500
+            duration: 1500,
           });
         }
 
@@ -230,8 +319,13 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
           animateVehicles();
         }
       } catch (error) {
-        console.error('TomTom map initialization error:', error);
-        setApiError('Failed to initialize TomTom map. Please check your API key.');
+        console.error(
+          "TomTom map initialization error:",
+          error,
+        );
+        setApiError(
+          "Failed to initialize TomTom map. Please check your API key.",
+        );
         onApiStatusChange?.(false);
       }
     };
@@ -249,11 +343,11 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
     if (!mapInstanceRef.current || !isLive) return;
 
     // Clear old markers
-    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
     // Update vehicle positions
-    vehiclesRef.current.forEach(vehicle => {
+    vehiclesRef.current.forEach((vehicle) => {
       // Move vehicle along route
       vehicle.routeIndex += 1;
       if (vehicle.routeIndex >= vehicle.route.length) {
@@ -261,28 +355,44 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       }
 
       const currentPoint = vehicle.route[vehicle.routeIndex];
-      const nextPoint = vehicle.route[(vehicle.routeIndex + 1) % vehicle.route.length];
+      const nextPoint =
+        vehicle.route[
+          (vehicle.routeIndex + 1) % vehicle.route.length
+        ];
 
       // Calculate angle for rotation
       const dx = nextPoint[1] - currentPoint[1];
       const dy = nextPoint[0] - currentPoint[0];
-      vehicle.angle = Math.atan2(dy, dx) * 180 / Math.PI;
+      vehicle.angle = (Math.atan2(dy, dx) * 180) / Math.PI;
 
       // Interpolate position
       const t = Math.random() * 0.5;
-      vehicle.lat = currentPoint[0] + (nextPoint[0] - currentPoint[0]) * t;
-      vehicle.lng = currentPoint[1] + (nextPoint[1] - currentPoint[1]) * t;
+      vehicle.lat =
+        currentPoint[0] + (nextPoint[0] - currentPoint[0]) * t;
+      vehicle.lng =
+        currentPoint[1] + (nextPoint[1] - currentPoint[1]) * t;
 
       // Create vehicle marker
-      const el = document.createElement('div');
-      el.style.width = vehicle.type === 'truck' ? '16px' : vehicle.type === 'bus' ? '18px' : '12px';
-      el.style.height = vehicle.type === 'truck' ? '16px' : vehicle.type === 'bus' ? '18px' : '12px';
+      const el = document.createElement("div");
+      el.style.width =
+        vehicle.type === "truck"
+          ? "16px"
+          : vehicle.type === "bus"
+            ? "18px"
+            : "12px";
+      el.style.height =
+        vehicle.type === "truck"
+          ? "16px"
+          : vehicle.type === "bus"
+            ? "18px"
+            : "12px";
       el.style.backgroundColor = vehicle.color;
-      el.style.borderRadius = vehicle.type === 'bus' ? '4px' : '50%';
-      el.style.border = '2px solid white';
+      el.style.borderRadius =
+        vehicle.type === "bus" ? "4px" : "50%";
+      el.style.border = "2px solid white";
       el.style.transform = `rotate(${vehicle.angle}deg)`;
-      el.style.transition = 'all 0.5s ease-out';
-      el.style.boxShadow = '0 0 10px rgba(238, 0, 0, 0.5)';
+      el.style.transition = "all 0.5s ease-out";
+      el.style.boxShadow = "0 0 10px rgba(238, 0, 0, 0.5)";
 
       const marker = new window.tt.Marker({ element: el })
         .setLngLat([vehicle.lng, vehicle.lat])
@@ -303,7 +413,7 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
-      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current.forEach((marker) => marker.remove());
     };
   }, []);
 
@@ -312,9 +422,12 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       <div className="w-full h-[500px] bg-gray-950 rounded-lg flex items-center justify-center border border-gray-800">
         <div className="text-center max-w-md px-6">
           <AlertCircle className="w-12 h-12 text-[#EE0000] mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">TomTom API Key Required</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">
+            TomTom API Key Required
+          </h3>
           <p className="text-gray-400 mb-4">
-            Please configure your TomTom API key in Settings to view real-time traffic maps for NYC and Dallas.
+            Please configure your TomTom API key in Settings to
+            view real-time traffic maps for NYC and Dallas.
           </p>
           <a
             href="https://developer.tomtom.com/user/register"
@@ -334,7 +447,9 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       <div className="w-full h-[500px] bg-gray-950 rounded-lg flex items-center justify-center border border-gray-800">
         <div className="text-center max-w-md px-6">
           <AlertCircle className="w-12 h-12 text-[#EE0000] mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-white mb-2">TomTom API Error</h3>
+          <h3 className="text-xl font-semibold text-white mb-2">
+            TomTom API Error
+          </h3>
           <p className="text-gray-400 mb-4">{apiError}</p>
           <button
             onClick={() => {
@@ -365,12 +480,12 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
 
   return (
     <div className="relative">
-      <div 
-        ref={mapRef} 
+      <div
+        ref={mapRef}
         className="w-full h-[500px] rounded-lg overflow-hidden border border-gray-800"
-        style={{ background: '#0c0c0c' }}
+        style={{ background: "#0c0c0c" }}
       />
-      
+
       {isLive && (
         <>
           <motion.div
@@ -379,7 +494,9 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
             className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 flex items-center gap-2 z-10"
           >
             <div className="w-2 h-2 bg-[#EE0000] rounded-full animate-pulse"></div>
-            <span className="text-white text-sm font-semibold">LIVE TRAFFIC FLOW</span>
+            <span className="text-white text-sm font-semibold">
+              LIVE TRAFFIC FLOW
+            </span>
           </motion.div>
 
           <motion.div
@@ -409,19 +526,31 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-10">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-1 rounded" style={{ backgroundColor: '#EE0000' }}></div>
+            <div
+              className="w-4 h-1 rounded"
+              style={{ backgroundColor: "#EE0000" }}
+            ></div>
             <span>Heavy Traffic</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-1 rounded" style={{ backgroundColor: '#f97316' }}></div>
+            <div
+              className="w-4 h-1 rounded"
+              style={{ backgroundColor: "#f97316" }}
+            ></div>
             <span>Moderate</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-1 rounded" style={{ backgroundColor: '#eab308' }}></div>
+            <div
+              className="w-4 h-1 rounded"
+              style={{ backgroundColor: "#eab308" }}
+            ></div>
             <span>Light</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-1 rounded" style={{ backgroundColor: '#22c55e' }}></div>
+            <div
+              className="w-4 h-1 rounded"
+              style={{ backgroundColor: "#22c55e" }}
+            ></div>
             <span>Free Flow</span>
           </div>
         </div>
@@ -430,7 +559,9 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       {/* Powered by badge */}
       <div className="absolute bottom-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-10 flex items-center gap-2">
         <span>Powered by</span>
-        <span className="text-white font-semibold">TomTom Traffic API</span>
+        <span className="text-white font-semibold">
+          TomTom Traffic API
+        </span>
       </div>
     </div>
   );

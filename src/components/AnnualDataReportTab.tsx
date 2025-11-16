@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Calendar, Camera, MapPin } from 'lucide-react';
 import { InteractiveCityMap } from './InteractiveCityMap';
-import { TomTomTrafficMap } from './TomTomTrafficMap';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { monthlyTrafficData } from '../lib/mockData';
-import { useCity } from '../lib/cityContext';
 
 export function AnnualDataReportTab() {
   const [selectedMonth, setSelectedMonth] = useState('all');
-  const [tomtomApiWorking, setTomtomApiWorking] = useState(false);
 
   const months = [
     { value: 'all', label: 'All Year' },
@@ -27,18 +24,6 @@ export function AnnualDataReportTab() {
     { value: '11', label: 'November' },
     { value: '12', label: 'December' },
   ];
-
-  const city = useCity();
-
-  // Check if TomTom API key is available
-  useEffect(() => {
-    const apiKey = localStorage.getItem('tomtom_api_key');
-    setTomtomApiWorking(!!apiKey);
-  }, []);
-
-  const handleApiStatusChange = (isWorking: boolean) => {
-    setTomtomApiWorking(isWorking);
-  };
 
   return (
     <div className="space-y-6">
@@ -95,121 +80,118 @@ export function AnnualDataReportTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {city.selectedCity === 'nyc' || city.selectedCity === 'dallas' ? (
-            <TomTomTrafficMap onApiStatusChange={handleApiStatusChange} />
-          ) : (
-            <InteractiveCityMap />
-          )}
-          
-          {/* Legend */}
-          <div className="mt-4 flex flex-wrap items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-green-500"></div>
-              <span className="text-sm text-gray-400">Low Traffic</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-yellow-500"></div>
-              <span className="text-sm text-gray-400">Moderate Traffic</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-orange-500"></div>
-              <span className="text-sm text-gray-400">Heavy Traffic</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-[#EE0000]"></div>
-              <span className="text-sm text-gray-400">Critical Traffic</span>
-            </div>
-          </div>
+          <InteractiveCityMap />
         </CardContent>
       </Card>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Average Speed Trend */}
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader>
-            <CardTitle className="text-white">Average Speed Trends</CardTitle>
-            <CardDescription className="text-gray-400">
-              Monthly average speeds across all monitored roads
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={monthlyTrafficData}>
-                <defs>
-                  <linearGradient id="speedGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#EE0000" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#EE0000" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="month" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" label={{ value: 'mph', angle: -90, position: 'insideLeft', fill: '#9CA3AF' }} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                  labelStyle={{ color: '#fff' }}
-                />
-                <Area type="monotone" dataKey="avgSpeed" stroke="#EE0000" fillOpacity={1} fill="url(#speedGradient)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Incidents */}
-        <Card className="bg-gray-900 border-gray-800">
-          <CardHeader>
-            <CardTitle className="text-white">Traffic Incidents</CardTitle>
-            <CardDescription className="text-gray-400">
-              Monthly incident count including accidents and breakdowns
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyTrafficData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis dataKey="month" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                  labelStyle={{ color: '#fff' }}
-                />
-                <Bar dataKey="incidents" fill="#EE0000" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Traffic Volume */}
+      {/* Traffic Trends Chart */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
-          <CardTitle className="text-white">Annual Traffic Volume</CardTitle>
+          <CardTitle className="text-white">Monthly Traffic Trends</CardTitle>
           <CardDescription className="text-gray-400">
-            Total vehicle count across all monitored intersections
+            Average traffic volume and congestion levels throughout the year
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={monthlyTrafficData}>
               <defs>
-                <linearGradient id="volumeGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="colorTraffic" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#EE0000" stopOpacity={0.8}/>
+                  <stop offset="95%" stopColor="#EE0000" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorCongestion" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#f97316" stopOpacity={0.8}/>
                   <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="month" stroke="#9CA3AF" />
-              <YAxis stroke="#9CA3AF" tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`} />
+              <YAxis stroke="#9CA3AF" />
               <Tooltip 
                 contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
-                labelStyle={{ color: '#fff' }}
-                formatter={(value: number) => value.toLocaleString()}
+                labelStyle={{ color: '#F3F4F6' }}
               />
-              <Area type="monotone" dataKey="volume" stroke="#f97316" fillOpacity={1} fill="url(#volumeGradient)" />
+              <Legend />
+              <Area 
+                type="monotone" 
+                dataKey="avgTraffic" 
+                stroke="#EE0000" 
+                fillOpacity={1} 
+                fill="url(#colorTraffic)" 
+                name="Avg Traffic Volume"
+              />
+              <Area 
+                type="monotone" 
+                dataKey="congestionLevel" 
+                stroke="#f97316" 
+                fillOpacity={1} 
+                fill="url(#colorCongestion)" 
+                name="Congestion Level"
+              />
             </AreaChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {/* Incident Analysis */}
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader>
+          <CardTitle className="text-white">Monthly Incident Analysis</CardTitle>
+          <CardDescription className="text-gray-400">
+            Breakdown of traffic incidents by type and frequency
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyTrafficData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+              <XAxis dataKey="month" stroke="#9CA3AF" />
+              <YAxis stroke="#9CA3AF" />
+              <Tooltip 
+                contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }}
+                labelStyle={{ color: '#F3F4F6' }}
+              />
+              <Legend />
+              <Bar dataKey="incidents" fill="#EE0000" name="Total Incidents" />
+              <Bar dataKey="avgSpeed" fill="#22c55e" name="Avg Speed (mph)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Summary Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-gray-900 border-gray-800">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <p className="text-gray-400 text-sm">Total Incidents</p>
+              <h3 className="text-white text-3xl mt-2">2,847</h3>
+              <p className="text-gray-500 text-sm mt-1">-12% from last year</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gray-900 border-gray-800">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <p className="text-gray-400 text-sm">Average Congestion</p>
+              <h3 className="text-white text-3xl mt-2">68%</h3>
+              <p className="text-gray-500 text-sm mt-1">+5% from last year</p>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-gray-900 border-gray-800">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <p className="text-gray-400 text-sm">Peak Hour Average</p>
+              <h3 className="text-white text-3xl mt-2">22 mph</h3>
+              <p className="text-gray-500 text-sm mt-1">-8% from last year</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Activity, Zap, TrendingUp } from 'lucide-react';
 import { InteractiveCityMap } from './InteractiveCityMap';
-import { TomTomTrafficMap } from './TomTomTrafficMap';
 import { TrafficProjection } from './TrafficProjection';
 import { Badge } from './ui/badge';
 import { motion } from 'motion/react';
@@ -15,7 +14,6 @@ export function LiveDataTab() {
     congestionLevel: 78,
     camerasOnline: 156,
   });
-  const [tomtomApiWorking, setTomtomApiWorking] = useState(false);
 
   // Simulate live data updates
   useEffect(() => {
@@ -39,16 +37,6 @@ export function LiveDataTab() {
   };
 
   const city = useCity();
-
-  // Check if TomTom API key is available
-  useEffect(() => {
-    const apiKey = localStorage.getItem('tomtom_api_key');
-    setTomtomApiWorking(!!apiKey);
-  }, []);
-
-  const handleApiStatusChange = (isWorking: boolean) => {
-    setTomtomApiWorking(isWorking);
-  };
 
   return (
     <div className="space-y-6">
@@ -157,11 +145,7 @@ export function LiveDataTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {tomtomApiWorking ? (
-            <TomTomTrafficMap isLive={true} onApiStatusChange={handleApiStatusChange} />
-          ) : (
-            <InteractiveCityMap isLive={true} />
-          )}
+          <InteractiveCityMap isLive={true} />
         </CardContent>
       </Card>
 
