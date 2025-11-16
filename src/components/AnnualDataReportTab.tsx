@@ -84,7 +84,7 @@ export function AnnualDataReportTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {city.selectedCity === 'New York' || city.selectedCity === 'Dallas' ? (
+          {city.selectedCity === 'nyc' || city.selectedCity === 'dallas' ? (
             <TomTomTrafficMap />
           ) : (
             <InteractiveCityMap />

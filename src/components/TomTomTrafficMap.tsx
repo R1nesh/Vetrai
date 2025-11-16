@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useCity } from '../lib/cityContext';
+import { useCity, cityToMapName } from '../lib/cityContext';
 import { motion } from 'motion/react';
 import { AlertCircle } from 'lucide-react';
 
@@ -130,7 +130,9 @@ export function TomTomTrafficMap({ isLive = false }: TomTomTrafficMapProps) {
     const apiKey = localStorage.getItem('tomtom_api_key');
     if (!apiKey) return;
 
-    const coords = cityCoords[selectedCity] || cityCoords['New York'];
+    // Convert city ID to map name (e.g., 'nyc' -> 'New York')
+    const mapName = cityToMapName[selectedCity] || 'New York';
+    const coords = cityCoords[mapName] || cityCoords['New York'];
 
     if (!mapInstanceRef.current) {
       // Create new map
@@ -196,7 +198,7 @@ export function TomTomTrafficMap({ isLive = false }: TomTomTrafficMapProps) {
 
     // Initialize vehicle simulation
     if (isLive) {
-      initializeVehicles(selectedCity);
+      initializeVehicles(mapName);
       animateVehicles();
     }
 

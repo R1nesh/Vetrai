@@ -8,7 +8,8 @@ import { useCity } from '../lib/cityContext';
 import { TechnologyInfo } from './TechnologyInfo';
 
 export function HomeTab() {
-  const { selectedCity } = useCity();
+  const { selectedCity, getCityDisplayName } = useCity();
+  const cityDisplayName = getCityDisplayName(selectedCity);
 
   const hotspots = trafficHotspots[selectedCity as keyof typeof trafficHotspots] || [];
   const recommendations = improvements[selectedCity as keyof typeof improvements] || [];
@@ -38,7 +39,7 @@ export function HomeTab() {
           Welcome to Vetrai
         </h1>
         <p className="text-gray-200">
-          Traffic Intelligence for {selectedCity} • Powered by Verizon 5G & Edge Computing
+          Traffic Intelligence for {cityDisplayName} • Powered by Verizon 5G & Edge Computing
         </p>
       </div>
 
@@ -53,7 +54,7 @@ export function HomeTab() {
               <AlertTriangle className="w-5 h-5 text-[#EE0000]" />
               <CardTitle className="text-white">Traffic Hotspots</CardTitle>
             </div>
-            <CardDescription>Critical congestion areas in {selectedCity}</CardDescription>
+            <CardDescription>Critical congestion areas in {cityDisplayName}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -132,7 +133,7 @@ export function HomeTab() {
             <TrendingUp className="w-5 h-5 text-[#EE0000]" />
             <CardTitle className="text-white">AI-Recommended Improvements</CardTitle>
           </div>
-          <CardDescription>Data-driven suggestions for {selectedCity}</CardDescription>
+          <CardDescription>Data-driven suggestions for {cityDisplayName}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
