@@ -1,7 +1,7 @@
 
-  # Traffic Analysis Web App (Copy)
+  # Traffic Analysis Web App
 
-  This is a code bundle for Traffic Analysis Web App (Copy). The original project is available at https://www.figma.com/design/vGC5J4iPyZzBQZ6qruhkNh/Traffic-Analysis-Web-App--Copy-.
+  This is a code bundle for Traffic Analysis Web App.
 
   ## Running the code
 
