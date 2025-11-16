@@ -5,6 +5,7 @@ import { Badge } from './ui/badge';
 import { AlertTriangle, TrendingUp, MessageSquare, Navigation } from 'lucide-react';
 import { cities, trafficHotspots, improvements, publicSentiment } from '../lib/mockData';
 import { useCity } from '../lib/cityContext';
+import { TechnologyInfo } from './TechnologyInfo';
 
 export function HomeTab() {
   const { selectedCity } = useCity();
@@ -31,116 +32,134 @@ export function HomeTab() {
 
   return (
     <div className="space-y-6">
-      {/* Traffic Hotspots */}
-      <Card className="bg-gray-900 border-gray-800">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-[#EE0000]" />
-            <CardTitle className="text-white">Traffic Hotspot Roads</CardTitle>
-          </div>
-          <CardDescription className="text-gray-400">
-            Most congested roads based on real-time data and historical patterns
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {hotspots.map((hotspot, index) => (
-              <div 
-                key={hotspot.id}
-                className="flex items-center gap-4 p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-[#EE0000] transition-colors"
-              >
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white">
-                  {index + 1}
-                </div>
-                <div className="flex-1">
-                  <h4 className="text-white">{hotspot.road}</h4>
-                  <p className="text-gray-400 text-sm">Peak Hours: {hotspot.peakHours}</p>
-                </div>
-                <div className="text-right">
-                  <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${getSeverityColor(hotspot.severity)}`}>
-                    <span className="text-white text-sm">{hotspot.severity}%</span>
-                  </div>
-                  <p className="text-gray-400 text-sm mt-1">Avg Delay: {hotspot.avgDelay}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-[#EE0000] to-black p-8 rounded-lg border border-gray-800">
+        <h1 className="text-3xl font-bold text-white mb-2">
+          Welcome to Vetrai
+        </h1>
+        <p className="text-gray-200">
+          Traffic Intelligence for {selectedCity} • Powered by Verizon 5G & Edge Computing
+        </p>
+      </div>
 
-      {/* Improvement Recommendations */}
+      {/* Technology Information */}
+      <TechnologyInfo />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Traffic Hotspots */}
+        <Card className="bg-gray-900 border-gray-800 lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-[#EE0000]" />
+              <CardTitle className="text-white">Traffic Hotspots</CardTitle>
+            </div>
+            <CardDescription>Critical congestion areas in {selectedCity}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {hotspots.map((hotspot, index) => (
+                <div 
+                  key={index}
+                  className="bg-gray-950 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Navigation className="w-4 h-4 text-[#EE0000]" />
+                      <h4 className="font-semibold text-white">{hotspot.location}</h4>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${getSeverityColor(hotspot.severity)}`}></div>
+                      <span className="text-sm text-gray-400">{hotspot.severity}%</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-400 mb-2">{hotspot.description}</p>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs border-gray-700 text-gray-300">
+                      {hotspot.peakTime}
+                    </Badge>
+                    <Badge variant="outline" className="text-xs border-gray-700 text-gray-300">
+                      Avg delay: {hotspot.avgDelay}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Public Sentiment */}
+        <Card className="bg-gray-900 border-gray-800">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <MessageSquare className="w-5 h-5 text-[#EE0000]" />
+              <CardTitle className="text-white">Public Sentiment</CardTitle>
+            </div>
+            <CardDescription>Community feedback on traffic</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {sentiment.map((item, index) => (
+                <div 
+                  key={index}
+                  className="bg-gray-950 border border-gray-800 rounded-lg p-3"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-white">{item.category}</span>
+                    <span className="text-sm text-gray-400">{item.percentage}%</span>
+                  </div>
+                  <div className="w-full bg-gray-800 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${
+                        item.sentiment === 'negative' ? 'bg-[#EE0000]' :
+                        item.sentiment === 'neutral' ? 'bg-yellow-500' :
+                        'bg-green-500'
+                      }`}
+                      style={{ width: `${item.percentage}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">{item.trend}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* AI Recommendations */}
       <Card className="bg-gray-900 border-gray-800">
         <CardHeader>
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-[#EE0000]" />
-            <CardTitle className="text-white">Suggested Traffic Improvements</CardTitle>
+            <CardTitle className="text-white">AI-Recommended Improvements</CardTitle>
           </div>
-          <CardDescription className="text-gray-400">
-            AI-powered recommendations to reduce congestion and improve traffic flow
-          </CardDescription>
+          <CardDescription>Data-driven suggestions for {selectedCity}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {recommendations.map(rec => (
-              <div 
-                key={rec.id}
-                className="p-4 bg-gray-800 rounded-lg border border-gray-700 hover:border-[#EE0000] transition-colors"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {recommendations.map((improvement, index) => (
+              <div
+                key={index}
+                className="bg-gray-950 border border-gray-800 rounded-lg p-4 hover:border-gray-700 transition-colors"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className={getPriorityColor(rec.priority)}>
-                        {rec.priority} Priority
-                      </Badge>
-                      <Badge variant="outline" className="border-gray-600 text-gray-300">
-                        {rec.impact} Impact
-                      </Badge>
-                    </div>
-                    <h4 className="text-white mb-1">{rec.title}</h4>
-                    <p className="text-gray-400 text-sm">
-                      Estimated congestion reduction: <span className="text-[#EE0000]">{rec.estimatedReduction}</span>
-                    </p>
-                  </div>
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-white">{improvement.title}</h4>
+                  <Badge className={getPriorityColor(improvement.priority)}>
+                    {improvement.priority}
+                  </Badge>
                 </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Public Sentiment */}
-      <Card className="bg-gray-900 border-gray-800">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-[#EE0000]" />
-            <CardTitle className="text-white">Public Sentiment Analysis</CardTitle>
-          </div>
-          <CardDescription className="text-gray-400">
-            Most common traffic complaints from social media and community forums
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {sentiment.map((item, index) => (
-              <div 
-                key={item.id}
-                className="p-4 bg-gray-800 rounded-lg border border-gray-700"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#EE0000] text-white flex-shrink-0">
-                    {index + 1}
+                <p className="text-sm text-gray-400 mb-3">{improvement.description}</p>
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-500">Impact</span>
+                    <span className="text-green-500">{improvement.impact}</span>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-white mb-2">{item.complaint}</h4>
-                    <div className="flex flex-wrap items-center gap-3 text-sm">
-                      <span className="text-gray-400">
-                        <span className="text-[#EE0000]">{item.frequency.toLocaleString()}</span> mentions
-                      </span>
-                      <span className="text-gray-600">•</span>
-                      <span className="text-gray-400">
-                        Sources: {item.sources}
-                      </span>
-                    </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-500">Cost</span>
+                    <span className="text-yellow-500">{improvement.cost}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-500">Timeline</span>
+                    <span className="text-blue-500">{improvement.timeline}</span>
                   </div>
                 </div>
               </div>

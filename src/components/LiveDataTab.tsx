@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Activity, Zap, TrendingUp } from 'lucide-react';
 import { InteractiveCityMap } from './InteractiveCityMap';
+import { TomTomTrafficMap } from './TomTomTrafficMap';
 import { TrafficProjection } from './TrafficProjection';
 import { Badge } from './ui/badge';
 import { motion } from 'motion/react';
+import { useCity } from '../lib/cityContext';
 
 export function LiveDataTab() {
   const [liveStats, setLiveStats] = useState({
@@ -34,6 +36,8 @@ export function LiveDataTab() {
     if (level >= 25) return 'text-yellow-500';
     return 'text-green-500';
   };
+
+  const city = useCity();
 
   return (
     <div className="space-y-6">
@@ -143,6 +147,31 @@ export function LiveDataTab() {
         </CardHeader>
         <CardContent>
           <InteractiveCityMap isLive={true} />
+        </CardContent>
+      </Card>
+
+      {/* TomTom Traffic Map */}
+      <Card className="bg-gray-900 border-gray-800">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Activity className="w-5 h-5 text-[#EE0000]" />
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#EE0000] rounded-full animate-pulse"></div>
+              </div>
+              <CardTitle className="text-white">TomTom Real-Time Traffic Map</CardTitle>
+            </div>
+            <Badge className="bg-green-500 hover:bg-green-500">
+              <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
+              LIVE
+            </Badge>
+          </div>
+          <CardDescription className="text-gray-400">
+            Live traffic flow with real-time updates every 30 seconds
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TomTomTrafficMap isLive={true} />
         </CardContent>
       </Card>
 

@@ -3,8 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Calendar, Camera, MapPin } from 'lucide-react';
 import { InteractiveCityMap } from './InteractiveCityMap';
+import { TomTomTrafficMap } from './TomTomTrafficMap';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { monthlyTrafficData } from '../lib/mockData';
+import { useCity } from '../lib/cityContext';
 
 export function AnnualDataReportTab() {
   const [selectedMonth, setSelectedMonth] = useState('all');
@@ -24,6 +26,8 @@ export function AnnualDataReportTab() {
     { value: '11', label: 'November' },
     { value: '12', label: 'December' },
   ];
+
+  const city = useCity();
 
   return (
     <div className="space-y-6">
@@ -80,7 +84,11 @@ export function AnnualDataReportTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <InteractiveCityMap />
+          {city.selectedCity === 'New York' || city.selectedCity === 'Dallas' ? (
+            <TomTomTrafficMap />
+          ) : (
+            <InteractiveCityMap />
+          )}
           
           {/* Legend */}
           <div className="mt-4 flex flex-wrap items-center gap-6">

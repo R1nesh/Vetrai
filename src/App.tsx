@@ -7,6 +7,8 @@ import { AIAnalysisTab } from './components/AIAnalysisTab';
 import { VetraiLogo } from './components/VetraiLogo';
 import { CityProvider } from './lib/cityContext';
 import { CitySelector } from './components/CitySelector';
+import { SettingsDialog } from './components/SettingsDialog';
+import { Toaster } from './components/ui/sonner';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('home');
@@ -19,7 +21,10 @@ export default function App() {
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <VetraiLogo />
-              <CitySelector />
+              <div className="flex items-center gap-3">
+                <CitySelector />
+                <SettingsDialog />
+              </div>
             </div>
           </div>
         </header>
@@ -71,6 +76,7 @@ export default function App() {
             </TabsContent>
           </Tabs>
         </main>
+        <Toaster />
       </div>
     </CityProvider>
   );
