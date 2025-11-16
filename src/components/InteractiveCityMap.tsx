@@ -222,37 +222,37 @@ export function InteractiveCityMap({ isLive = false }: InteractiveCityMapProps) 
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 flex items-center gap-2 z-[1000]"
+          className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 flex items-center gap-2 z-10"
         >
           <div className="w-2 h-2 bg-[#EE0000] rounded-full animate-pulse"></div>
-          <span className="text-white text-sm">LIVE TRAFFIC</span>
+          <span className="text-white text-sm font-semibold">LIVE TRAFFIC FLOW</span>
         </motion.div>
       )}
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-[1000]">
+      <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-10">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 rounded" style={{ backgroundColor: '#EE0000' }}></div>
-            <span>Critical (90%+)</span>
+            <span>Heavy Traffic</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 rounded" style={{ backgroundColor: '#f97316' }}></div>
-            <span>High (80-89%)</span>
+            <span>Moderate</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 rounded" style={{ backgroundColor: '#eab308' }}></div>
-            <span>Medium (70-79%)</span>
+            <span>Light</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 rounded" style={{ backgroundColor: '#22c55e' }}></div>
-            <span>Low (&lt;70%)</span>
+            <span>Free Flow</span>
           </div>
         </div>
       </div>
 
       {/* Controls hint */}
-      <div className="absolute bottom-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-[1000]">
+      <div className="absolute bottom-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-10">
         {isLive ? 'Click roads for details • Drag to pan • Scroll to zoom' : 'Click and drag to pan • Scroll to zoom • Click roads for info'}
       </div>
 

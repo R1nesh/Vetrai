@@ -376,7 +376,7 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 flex items-center gap-2 z-[1000]"
+            className="absolute top-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 flex items-center gap-2 z-10"
           >
             <div className="w-2 h-2 bg-[#EE0000] rounded-full animate-pulse"></div>
             <span className="text-white text-sm font-semibold">LIVE TRAFFIC FLOW</span>
@@ -385,7 +385,7 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute top-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 z-[1000]"
+            className="absolute top-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 z-10"
           >
             <div className="text-xs text-gray-300">
               <div className="flex items-center gap-2 mb-1">
@@ -406,7 +406,7 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       )}
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-[1000]">
+      <div className="absolute bottom-4 left-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-10">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <div className="w-4 h-1 rounded" style={{ backgroundColor: '#EE0000' }}></div>
@@ -428,7 +428,7 @@ export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTr
       </div>
 
       {/* Powered by badge */}
-      <div className="absolute bottom-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-[1000] flex items-center gap-2">
+      <div className="absolute bottom-4 right-4 bg-gray-900/90 backdrop-blur border border-gray-800 rounded-lg px-3 py-2 text-xs text-gray-400 z-10 flex items-center gap-2">
         <span>Powered by</span>
         <span className="text-white font-semibold">TomTom Traffic API</span>
       </div>

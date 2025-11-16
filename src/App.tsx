@@ -17,7 +17,7 @@ export default function App() {
     <CityProvider>
       <div className="min-h-screen bg-black">
         {/* Header */}
-        <header className="border-b border-gray-800 bg-black sticky top-0 z-50">
+        <header className="border-b border-gray-800 bg-black sticky top-0 z-[100]">
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <VetraiLogo />
