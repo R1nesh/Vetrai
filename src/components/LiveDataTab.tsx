@@ -15,6 +15,7 @@ export function LiveDataTab() {
     congestionLevel: 78,
     camerasOnline: 156,
   });
+  const [tomtomApiWorking, setTomtomApiWorking] = useState(false);
 
   // Simulate live data updates
   useEffect(() => {
@@ -38,6 +39,16 @@ export function LiveDataTab() {
   };
 
   const city = useCity();
+
+  // Check if TomTom API key is available
+  useEffect(() => {
+    const apiKey = localStorage.getItem('tomtom_api_key');
+    setTomtomApiWorking(!!apiKey);
+  }, []);
+
+  const handleApiStatusChange = (isWorking: boolean) => {
+    setTomtomApiWorking(isWorking);
+  };
 
   return (
     <div className="space-y-6">
@@ -146,32 +157,11 @@ export function LiveDataTab() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <InteractiveCityMap isLive={true} />
-        </CardContent>
-      </Card>
-
-      {/* TomTom Traffic Map */}
-      <Card className="bg-gray-900 border-gray-800">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Activity className="w-5 h-5 text-[#EE0000]" />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-[#EE0000] rounded-full animate-pulse"></div>
-              </div>
-              <CardTitle className="text-white">TomTom Real-Time Traffic Map</CardTitle>
-            </div>
-            <Badge className="bg-green-500 hover:bg-green-500">
-              <div className="w-2 h-2 bg-white rounded-full mr-2 animate-pulse"></div>
-              LIVE
-            </Badge>
-          </div>
-          <CardDescription className="text-gray-400">
-            Live traffic flow with real-time updates every 30 seconds
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <TomTomTrafficMap isLive={true} />
+          {tomtomApiWorking ? (
+            <TomTomTrafficMap isLive={true} onApiStatusChange={handleApiStatusChange} />
+          ) : (
+            <InteractiveCityMap isLive={true} />
+          )}
         </CardContent>
       </Card>
 

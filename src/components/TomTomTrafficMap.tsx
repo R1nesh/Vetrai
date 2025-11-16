@@ -11,6 +11,7 @@ declare global {
 
 interface TomTomTrafficMapProps {
   isLive?: boolean;
+  onApiStatusChange?: (isWorking: boolean) => void;
 }
 
 interface Vehicle {
@@ -25,12 +26,13 @@ interface Vehicle {
   color: string;
 }
 
-export function TomTomTrafficMap({ isLive = false }: TomTomTrafficMapProps) {
+export function TomTomTrafficMap({ isLive = false, onApiStatusChange }: TomTomTrafficMapProps) {
   const { selectedCity } = useCity();
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
   const vehiclesRef = useRef<Vehicle[]>([]);
   const animationFrameRef = useRef<number>();
   const markersRef = useRef<any[]>([]);
@@ -69,30 +71,41 @@ export function TomTomTrafficMap({ isLive = false }: TomTomTrafficMapProps) {
     const apiKey = localStorage.getItem('tomtom_api_key');
     setHasApiKey(!!apiKey);
 
-    if (!apiKey) return;
+    if (!apiKey) {
+      onApiStatusChange?.(false);
+      return;
+    }
 
     const loadTomTom = async () => {
-      if (!window.tt) {
-        // Add CSS
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css';
-        document.head.appendChild(link);
+      try {
+        if (!window.tt) {
+          // Add CSS
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps.css';
+          document.head.appendChild(link);
 
-        // Add JS
-        const script = document.createElement('script');
-        script.src = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js';
-        script.async = true;
-        await new Promise((resolve) => {
-          script.onload = resolve;
-          document.body.appendChild(script);
-        });
+          // Add JS
+          const script = document.createElement('script');
+          script.src = 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.25.0/maps/maps-web.min.js';
+          script.async = true;
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('Failed to load TomTom SDK'));
+            document.body.appendChild(script);
+          });
+        }
+        setIsLoaded(true);
+        onApiStatusChange?.(true);
+      } catch (error) {
+        console.error('TomTom SDK loading error:', error);
+        setApiError('Failed to load TomTom SDK. Please check your internet connection.');
+        onApiStatusChange?.(false);
       }
-      setIsLoaded(true);
     };
 
     loadTomTom();
-  }, []);
+  }, [onApiStatusChange]);
 
   // Initialize vehicles for traffic simulation
   const initializeVehicles = (city: string) => {
@@ -134,73 +147,96 @@ export function TomTomTrafficMap({ isLive = false }: TomTomTrafficMapProps) {
     const mapName = cityToMapName[selectedCity] || 'New York';
     const coords = cityCoords[mapName] || cityCoords['New York'];
 
-    if (!mapInstanceRef.current) {
-      // Create new map
-      const map = window.tt.map({
-        key: apiKey,
-        container: mapRef.current,
-        center: [coords.lng, coords.lat],
-        zoom: coords.zoom,
-        style: 'tomtom://vector/1/basic-night',
-      });
+    const initializeMap = () => {
+      try {
+        if (!mapInstanceRef.current) {
+          // Create new map
+          const map = window.tt.map({
+            key: apiKey,
+            container: mapRef.current,
+            center: [coords.lng, coords.lat],
+            zoom: coords.zoom,
+            style: 'tomtom://vector/1/basic-night',
+          });
 
-      // Add traffic flow layer
-      map.on('load', () => {
-        map.addLayer({
-          'id': 'traffic-flow',
-          'type': 'line',
-          'source': {
-            'type': 'vector',
-            'tiles': [`https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.pbf?key=${apiKey}`]
-          },
-          'source-layer': 'Traffic flow',
-          'paint': {
-            'line-color': [
-              'case',
-              ['<', ['get', 'speed'], 25], '#EE0000',
-              ['<', ['get', 'speed'], 50], '#f97316',
-              ['<', ['get', 'speed'], 75], '#eab308',
-              '#22c55e'
-            ],
-            'line-width': 3,
-            'line-opacity': 0.8
-          }
-        });
+          // Handle map errors
+          map.on('error', (e: any) => {
+            console.error('TomTom map error:', e);
+            setApiError('TomTom API error. Please check your API key and try again.');
+            onApiStatusChange?.(false);
+          });
 
-        // Add traffic incidents layer
-        map.addLayer({
-          'id': 'traffic-incidents',
-          'type': 'circle',
-          'source': {
-            'type': 'vector',
-            'tiles': [`https://api.tomtom.com/traffic/map/4/tile/incidents/{z}/{x}/{y}.pbf?key=${apiKey}`]
-          },
-          'source-layer': 'Traffic incidents',
-          'paint': {
-            'circle-radius': 8,
-            'circle-color': '#EE0000',
-            'circle-stroke-width': 2,
-            'circle-stroke-color': '#fff'
-          }
-        });
-      });
+          // Add traffic flow layer
+          map.on('load', () => {
+            try {
+              map.addLayer({
+                'id': 'traffic-flow',
+                'type': 'line',
+                'source': {
+                  'type': 'vector',
+                  'tiles': [`https://api.tomtom.com/traffic/map/4/tile/flow/relative/{z}/{x}/{y}.pbf?key=${apiKey}`]
+                },
+                'source-layer': 'Traffic flow',
+                'paint': {
+                  'line-color': [
+                    'case',
+                    ['<', ['get', 'speed'], 25], '#EE0000',
+                    ['<', ['get', 'speed'], 50], '#f97316',
+                    ['<', ['get', 'speed'], 75], '#eab308',
+                    '#22c55e'
+                  ],
+                  'line-width': 3,
+                  'line-opacity': 0.8
+                }
+              });
 
-      mapInstanceRef.current = map;
-    } else {
-      // Update existing map
-      mapInstanceRef.current.flyTo({
-        center: [coords.lng, coords.lat],
-        zoom: coords.zoom,
-        essential: true,
-        duration: 1500
-      });
-    }
+              // Add traffic incidents layer
+              map.addLayer({
+                'id': 'traffic-incidents',
+                'type': 'circle',
+                'source': {
+                  'type': 'vector',
+                  'tiles': [`https://api.tomtom.com/traffic/map/4/tile/incidents/{z}/{x}/{y}.pbf?key=${apiKey}`]
+                },
+                'source-layer': 'Traffic incidents',
+                'paint': {
+                  'circle-radius': 8,
+                  'circle-color': '#EE0000',
+                  'circle-stroke-width': 2,
+                  'circle-stroke-color': '#fff'
+                }
+              });
+            } catch (error) {
+              console.error('Error adding map layers:', error);
+              setApiError('Failed to add traffic layers. Please check your API key.');
+              onApiStatusChange?.(false);
+            }
+          });
 
-    // Initialize vehicle simulation
-    if (isLive) {
-      initializeVehicles(mapName);
-      animateVehicles();
-    }
+          mapInstanceRef.current = map;
+        } else {
+          // Update existing map
+          mapInstanceRef.current.flyTo({
+            center: [coords.lng, coords.lat],
+            zoom: coords.zoom,
+            essential: true,
+            duration: 1500
+          });
+        }
+
+        // Initialize vehicle simulation
+        if (isLive) {
+          initializeVehicles(mapName);
+          animateVehicles();
+        }
+      } catch (error) {
+        console.error('TomTom map initialization error:', error);
+        setApiError('Failed to initialize TomTom map. Please check your API key.');
+        onApiStatusChange?.(false);
+      }
+    };
+
+    initializeMap();
 
     return () => {
       if (animationFrameRef.current) {
@@ -288,6 +324,29 @@ export function TomTomTrafficMap({ isLive = false }: TomTomTrafficMapProps) {
           >
             Get Free API Key
           </a>
+        </div>
+      </div>
+    );
+  }
+
+  if (apiError) {
+    return (
+      <div className="w-full h-[500px] bg-gray-950 rounded-lg flex items-center justify-center border border-gray-800">
+        <div className="text-center max-w-md px-6">
+          <AlertCircle className="w-12 h-12 text-[#EE0000] mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">TomTom API Error</h3>
+          <p className="text-gray-400 mb-4">{apiError}</p>
+          <button
+            onClick={() => {
+              setApiError(null);
+              setIsLoaded(false);
+              setHasApiKey(false);
+              window.location.reload();
+            }}
+            className="inline-block bg-[#EE0000] hover:bg-[#cc0000] text-white px-4 py-2 rounded-lg transition-colors"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

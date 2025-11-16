@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Calendar, Camera, MapPin } from 'lucide-react';
@@ -10,6 +10,7 @@ import { useCity } from '../lib/cityContext';
 
 export function AnnualDataReportTab() {
   const [selectedMonth, setSelectedMonth] = useState('all');
+  const [tomtomApiWorking, setTomtomApiWorking] = useState(false);
 
   const months = [
     { value: 'all', label: 'All Year' },
@@ -28,6 +29,16 @@ export function AnnualDataReportTab() {
   ];
 
   const city = useCity();
+
+  // Check if TomTom API key is available
+  useEffect(() => {
+    const apiKey = localStorage.getItem('tomtom_api_key');
+    setTomtomApiWorking(!!apiKey);
+  }, []);
+
+  const handleApiStatusChange = (isWorking: boolean) => {
+    setTomtomApiWorking(isWorking);
+  };
 
   return (
     <div className="space-y-6">
@@ -85,7 +96,7 @@ export function AnnualDataReportTab() {
         </CardHeader>
         <CardContent>
           {city.selectedCity === 'nyc' || city.selectedCity === 'dallas' ? (
-            <TomTomTrafficMap />
+            <TomTomTrafficMap onApiStatusChange={handleApiStatusChange} />
           ) : (
             <InteractiveCityMap />
           )}
